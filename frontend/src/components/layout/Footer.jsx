@@ -83,14 +83,20 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/5 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+       <div className="border-t border-white/5 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="text-center md:text-left">
           <p className="text-sm text-white/30">© 2025 Cartify. All rights reserved.</p>
-          <div className="flex items-center gap-6 text-sm text-white/30">
-            <a href="#" className="hover:text-white/60 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Refund Policy</a>
-          </div>
+          <p className="text-xs text-white/40 mt-1">
+            Developed by <span className="text-primary-400 font-medium">Mukesh Bala</span>
+          </p>
         </div>
+
+        <div className="flex items-center gap-6 text-sm text-white/30">
+          <a href="#" className="hover:text-white/60 transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-white/60 transition-colors">Terms of Service</a>
+          <a href="#" className="hover:text-white/60 transition-colors">Refund Policy</a>
+        </div>
+      </div>
       </div>
     </footer>
   );
