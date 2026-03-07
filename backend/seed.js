@@ -159,16 +159,16 @@ async function seed() {
     console.log("✅ MongoDB connected");
 
     // Create or find admin user
-    let admin = await User.findOne({ email: "admin@cartify.in" });
+    let admin = await User.findOne({ email: "noreply.cartify@gmail.com" });
     if (!admin) {
-      const hashed = await bcrypt.hash("admin123", 10);
+      const hashed = await bcrypt.hash("Rcb12@@1", 10);
       admin = await User.create({
         name: "Admin",
-        email: "admin@cartify.in",
+        email: "noreply.cartify@gmail.com",
         password: hashed,
         isAdmin: true,
       });
-      console.log("✅ Admin user created: admin@cartify.in / admin123");
+      console.log("✅ Admin user created: noreply.cartify@gmail.com / Rcb12@@1");
     }
 
     // Create demo user
