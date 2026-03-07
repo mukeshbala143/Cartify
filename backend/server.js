@@ -16,7 +16,8 @@ app.use(cors({
     "http://localhost:5174",
     "http://localhost:5175",
     "http://localhost:3000",
-    "https://cartify-sigma.vercel.app"
+    "https://cartify-sigma.vercel.app",
+    "https://cartify-7egi8c7g9-mukeshbala143s-projects.vercel.app"
   ],
   credentials: true
 }));

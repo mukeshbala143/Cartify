@@ -4,7 +4,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiShoppingCart } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
-const GOOGLE_CLIENT_ID = '251077057530-81afds7ddur93is5q7lh4b3s36k2tc1j.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function LoginPage() {
   const { login, googleAuth } = useAuth();
@@ -41,7 +41,6 @@ export default function LoginPage() {
         callback: handleGoogleResponse,
         auto_select: false,
       });
-      // Render hidden SDK button — we click it programmatically
       if (hiddenGoogleRef.current) {
         window.google.accounts.id.renderButton(hiddenGoogleRef.current, {
           type: 'standard',
@@ -61,7 +60,6 @@ export default function LoginPage() {
     document.body.appendChild(script);
   }, []);
 
-  // Click the hidden Google button's inner element to trigger popup
   const handleGoogleClick = () => {
     const innerBtn = hiddenGoogleRef.current?.querySelector('div[role=button]');
     if (innerBtn) {
