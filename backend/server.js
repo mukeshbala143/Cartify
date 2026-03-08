@@ -19,6 +19,7 @@ app.use(cors({
       "http://localhost:5175",
       "http://localhost:3000",
       "https://cartify-sigma.vercel.app",
+    "https://cartify-production-7539.up.railway.app",
     ];
     // Allow any *.vercel.app subdomain (covers all preview deployments)
     if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
