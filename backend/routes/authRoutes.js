@@ -14,6 +14,9 @@ const { googleLogin } = require('../controllers/googleAuthController');
 
 const router = express.Router();
 
+// ⭐ Debug log (check in Render logs)
+console.log("✅ Auth Routes Loaded");
+
 // Register with OTP
 router.post('/register/send-otp', sendRegisterOTP);
 router.post('/register/verify-otp', verifyOTPAndRegister);
@@ -28,7 +31,7 @@ router.post('/forgot-password/reset', resetPassword);
 router.post('/login', login);
 router.get('/profile', protect, getProfile);
 
-// Google
+// Google login
 router.post('/google', googleLogin);
 
 module.exports = router;
