@@ -1,9 +1,18 @@
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'noreply.cartify@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
 const sendEmail = async (to, subject, html) => {
-  await resend.emails.send({
-    from: 'Cartify <onboarding@resend.dev>',
+  await transporter.sendMail({
+    from: '"Cartify 🛒" <noreply.cartify@gmail.com>',
     to,
     subject,
     html,
