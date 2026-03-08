@@ -44,7 +44,5 @@ app.use("/api/seller", require("./routes/sellerRoutes"));
 app.use('/api/auth', googleAuthRoutes);
 app.use('/api/returns', returnRoutes);
 
-const PORT = process.env.PORT || 5050;
-app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server running on port ${PORT}`));// force redeploy Sun Mar  8 17:38:29 IST 2026
-
-// redeploy-1772972800
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server running on port ${PORT}`));
