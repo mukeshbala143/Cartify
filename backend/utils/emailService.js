@@ -1,14 +1,23 @@
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  requireTLS: true,
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
 const sendEmail = async (to, subject, html) => {
-  const { error } = await resend.emails.send({
-    from: 'Cartify <onboarding@resend.dev>',
+  await transporter.sendMail({
+    from: '"Cartify" <' + process.env.GMAIL_USER + '>',
     to,
     subject,
     html,
   });
-  if (error) throw new Error(error.message);
 };
 
 exports.sendOTPEmail = async (toEmail, otp, userName = '') => {
