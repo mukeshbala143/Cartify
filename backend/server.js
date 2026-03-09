@@ -34,6 +34,7 @@ app.options("*", cors());
 app.use(express.json());
 
 app.get("/", (req, res) => res.send("Cartify Backend 🚀"));
+app.get("/health", (req, res) => res.json({ status: "ok" }));
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
