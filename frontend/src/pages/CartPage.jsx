@@ -157,7 +157,7 @@ export default function CartPage() {
       const { data: payRes } = await API.post('/payment/create-order', { amount: grandTotal, orderId: 'pay_' + Date.now() });
 
       const options = {
-        key: 'rzp_test_SNQbUAVzbgJ4y6',
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SOG90d3avXsFnE',
         amount: payRes.amount,
         currency: payRes.currency || 'INR',
         name: 'Cartify',
