@@ -88,15 +88,15 @@ export default function OrdersPage() {
     } finally { setLoading(false); }
   };
 
-  const handleCancel = async (id) => {
-    try {
-      await API.put(`/orders/${id}/cancel`);
-      toast.success('Order cancelled');
-      setCancelId(null);
-      fetchAll();
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Cancel failed');
-    }
+  const handleCancel = (id) => {
+    // Optimistic - turant UI update karo
+    setOrders(prev => prev.map(o => o._id === id ? { ...o, status: 'Cancelled' } : o));
+    setCancelId(null);
+    toast.success('Order cancelled');
+    // Background mein API call
+    API.put(`/orders/${id}/cancel`).catch(err => {
+      console.error('Cancel failed:', err);
+    });
   };
 
   const openAddressModal = (order) => {
