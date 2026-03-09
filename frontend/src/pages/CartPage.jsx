@@ -128,6 +128,17 @@ export default function CartPage() {
 
     // ── COD ──────────────────────────────────────────────────────
     if (payMethod === 'COD') {
+      // Optimistic - turant success, background mein save
+      clearCart();
+      toast.success('Order placed! Cash on Delivery 🎉');
+      navigate('/');
+      API.post('/orders', {
+        paymentMethod: 'COD',
+        shippingAddress: address,
+        items: orderItems,
+        totalAmount: grandTotal,
+      }).catch(err => console.error('Order save failed:', err));
+      return;
       try {
         setCheckingOut(true);
         await API.post('/orders', {
