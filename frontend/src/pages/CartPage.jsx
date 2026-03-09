@@ -136,8 +136,8 @@ export default function CartPage() {
           items: orderItems,
           totalAmount: grandTotal,
         });
-        // ✅ Backend + UI dono clear
         await clearCart();
+        setCheckingOut(false);
         toast.success('Order placed! Cash on Delivery 🎉');
         navigate('/orders');
       } catch (err) {
