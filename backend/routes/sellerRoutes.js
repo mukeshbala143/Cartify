@@ -4,7 +4,7 @@ const protect = require("../middleware/authMiddleware");
 const {
   registerSeller, addSellerProduct, getSellerProducts,
   updateSellerProduct, deleteSellerProduct, getPendingSellers,
-  approveSeller, rejectSeller, getSellerStatus, getAllSellers, toggleShopStatus
+  approveSeller, rejectSeller, getSellerStatus, getAllSellers, toggleShopStatus, adminToggleShop
 } = require("../controllers/sellerController");
 
 router.post("/register", protect, registerSeller);
@@ -19,4 +19,5 @@ router.put("/approve/:id", protect, approveSeller);
 router.put("/reject/:id", protect, rejectSeller);
 
 router.put("/toggle-shop", protect, toggleShopStatus);
+router.put("/admin-toggle/:id", protect, adminToggleShop);
 module.exports = router;

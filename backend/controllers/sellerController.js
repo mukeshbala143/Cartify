@@ -152,3 +152,16 @@ exports.getSellerStatus = async (req, res) => {
     res.json({ success: true, isSeller: user.isSeller, sellerInfo: user.sellerInfo });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
+// Admin: toggle any seller's shop status
+exports.adminToggleShop = async (req, res) => {
+  try {
+    const { active } = req.body;
+    const db = require('mongoose').connection.db;
+    const { ObjectId } = require('mongodb');
+    await db.collection('users').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: { "sellerInfo.active": active } }
+    );
+    res.json({ success: true, active, message: active ? "Shop activated" : "Shop deactivated" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
