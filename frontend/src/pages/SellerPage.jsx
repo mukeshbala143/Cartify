@@ -27,6 +27,31 @@ const COUNTRY_CODES = [
 const CATEGORIES = ['Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books', 'Beauty', 'Other'];
 const emptyForm = { name: '', description: '', price: '', countInStock: '', images: [], category: 'Other' };
 
+
+function ToggleShopBtn({ sellerStatus, setSellerStatus }) {
+  const [toggling, setToggling] = useState(false);
+  const isOpen = sellerStatus.sellerInfo?.active !== false;
+  const handleToggle = async () => {
+    if (toggling) return;
+    setToggling(true);
+    try {
+      const { data } = await API.put('/seller/toggle-shop');
+      toast.success(data.message);
+      setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: data.active } }));
+    } catch(e) { toast.error('Failed to toggle shop'); }
+    finally { setToggling(false); }
+  };
+  return (
+    <button onClick={handleToggle} disabled={toggling} className={`text-xs px-3 py-1 rounded-full border font-semibold transition-all disabled:opacity-50 ${
+      isOpen
+        ? 'bg-green-500/10 border-green-500/30 text-green-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
+        : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
+    }`}>
+      {toggling ? '...' : isOpen ? '🟢 Shop Open' : '🔴 Shop Closed'}
+    </button>
+  );
+}
+
 export default function SellerPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -240,19 +265,7 @@ export default function SellerPage() {
               <FiStore className="w-5 h-5 text-primary-400" />
               <h1 className="font-display text-3xl font-black text-white">{sellerStatus.sellerInfo?.shopName}</h1>
               <span className="text-xs bg-green-500/15 border border-green-500/25 text-green-400 px-2 py-0.5 rounded-full font-semibold">✓ Approved</span>
-              <button onClick={async () => {
-                try {
-                  const { data } = await API.put('/seller/toggle-shop');
-                  toast.success(data.message);
-                  setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: data.active } }));
-                } catch(e) { toast.error('Failed to toggle shop'); }
-              }} className={`text-xs px-3 py-1 rounded-full border font-semibold transition-all ${
-                sellerStatus.sellerInfo?.active !== false
-                  ? 'bg-green-500/10 border-green-500/30 text-green-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
-                  : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
-              }`}>
-                {sellerStatus.sellerInfo?.active !== false ? '🟢 Shop Open' : '🔴 Shop Closed'}
-              </button>
+              <ToggleShopBtn sellerStatus={sellerStatus} setSellerStatus={setSellerStatus} />
             </div>
             <p className="text-white/30 text-sm">Seller: {user?.name} · {sellerStatus.sellerInfo?.countryCode} {sellerStatus.sellerInfo?.phone}</p>
           </div>
