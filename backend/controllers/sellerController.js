@@ -110,8 +110,25 @@ exports.getAllSellers = async (req, res) => {
 exports.approveSeller = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id,
-      { "sellerInfo.approved": true }, { new: true }).select("-password");
+      { "sellerInfo.approved": true, "sellerInfo.active": true }, { new: true }).select("-password");
+    try {
+      await sendEmail(user.email, 'Seller Account Approved - Cartify',
+        '<h2>Hi ' + user.name + ',</h2><p>Your shop <strong>' + user.sellerInfo?.shopName + '</strong> has been approved! Login to your Seller Dashboard to start selling.</p><p>Team Cartify</p>');
+    } catch(e) { console.error('Approval email failed:', e); }
     res.json({ success: true, message: "Seller approved!", user });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
+exports.toggleShopStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user.isSeller || !user.sellerInfo?.approved) {
+      return res.status(403).json({ message: "Not an approved seller" });
+    }
+    const newStatus = !user.sellerInfo.active;
+    const updated = await User.findByIdAndUpdate(req.user._id,
+      { "sellerInfo.active": newStatus }, { new: true }).select("-password");
+    res.json({ success: true, active: newStatus, message: newStatus ? "Shop is now Active" : "Shop is now Inactive", user: updated });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
 

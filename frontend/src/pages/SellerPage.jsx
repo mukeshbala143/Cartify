@@ -235,11 +235,24 @@ export default function SellerPage() {
         </Link>
 
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <FiStore className="w-5 h-5 text-primary-400" />
               <h1 className="font-display text-3xl font-black text-white">{sellerStatus.sellerInfo?.shopName}</h1>
               <span className="text-xs bg-green-500/15 border border-green-500/25 text-green-400 px-2 py-0.5 rounded-full font-semibold">✓ Approved</span>
+              <button onClick={async () => {
+                try {
+                  const { data } = await API.put('/seller/toggle-shop');
+                  toast.success(data.message);
+                  setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: data.active } }));
+                } catch(e) { toast.error('Failed to toggle shop'); }
+              }} className={`text-xs px-3 py-1 rounded-full border font-semibold transition-all ${
+                sellerStatus.sellerInfo?.active !== false
+                  ? 'bg-green-500/10 border-green-500/30 text-green-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
+                  : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
+              }`}>
+                {sellerStatus.sellerInfo?.active !== false ? '🟢 Shop Open' : '🔴 Shop Closed'}
+              </button>
             </div>
             <p className="text-white/30 text-sm">Seller: {user?.name} · {sellerStatus.sellerInfo?.countryCode} {sellerStatus.sellerInfo?.phone}</p>
           </div>
