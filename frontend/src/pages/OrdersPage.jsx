@@ -166,13 +166,13 @@ export default function OrdersPage() {
   const formatDateTime = (d) => new Date(d).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   if (loading) return (
-    <div className="min-h-screen pt-24 flex items-center justify-center">
+    <div className="min-h-screen pt-32 flex items-center justify-center">
       <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
   if (!orders.length) return (
-    <div className="min-h-screen pt-24 flex items-center justify-center text-center px-4">
+    <div className="min-h-screen pt-32 flex items-center justify-center text-center px-4">
       <div>
         <div className="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
           <FiPackage className="w-12 h-12 text-white/20" />
@@ -185,7 +185,7 @@ export default function OrdersPage() {
   );
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4">
+    <div className="min-h-screen pt-32 pb-16 px-4">
       <div className="max-w-3xl mx-auto">
         <Link to="/" className="inline-flex items-center gap-1.5 text-white/40 hover:text-primary-400 transition-colors text-sm mb-4">
           ← Back to Home

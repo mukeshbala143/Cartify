@@ -39,7 +39,7 @@ export default function GiftCardsPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-32 pb-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <Link to="/" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-6 text-sm">
           <FiArrowLeft className="w-4 h-4" /> Back to Home

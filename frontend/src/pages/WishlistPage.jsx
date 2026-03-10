@@ -9,7 +9,7 @@ export default function WishlistPage() {
   const { addToCart } = useCart();
 
   if (wishlist.length === 0) return (
-    <div className="min-h-screen pt-24 flex items-center justify-center">
+    <div className="min-h-screen pt-32 flex items-center justify-center">
       <div className="text-center max-w-sm">
         <div className="text-8xl mb-6">❤️</div>
         <h2 className="font-display text-3xl font-bold text-white mb-3">Wishlist is empty</h2>
@@ -22,7 +22,7 @@ export default function WishlistPage() {
   );
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-32 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Back Button */}

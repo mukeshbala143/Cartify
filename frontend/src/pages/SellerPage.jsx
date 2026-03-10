@@ -161,14 +161,14 @@ export default function SellerPage() {
   };
 
   if (loading) return (
-    <div className="min-h-screen pt-24 flex items-center justify-center">
+    <div className="min-h-screen pt-32 flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
   // ── NOT A SELLER YET ──
   if (!sellerStatus?.isSeller) return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-32 pb-16">
       <div className="max-w-2xl mx-auto px-4">
 
         <Link to="/" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-6 text-sm">
@@ -249,7 +249,7 @@ export default function SellerPage() {
 
   // ── PENDING APPROVAL ──
   if (sellerStatus?.isSeller && !sellerStatus?.sellerInfo?.approved) return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-32 pb-16">
       <div className="max-w-sm mx-auto px-4">
         <Link to="/" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-6 text-sm">
           <FiArrowLeft className="w-4 h-4" /> Back to Home
@@ -273,7 +273,7 @@ export default function SellerPage() {
 
   // ── APPROVED SELLER DASHBOARD ──
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-32 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Back Button */}
