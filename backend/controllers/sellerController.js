@@ -165,3 +165,41 @@ exports.adminToggleShop = async (req, res) => {
     res.json({ success: true, active, message: active ? "Shop activated" : "Shop deactivated" });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
+
+// Seller: request to open/close shop
+exports.requestShopStatus = async (req, res) => {
+  try {
+    const { requestType } = req.body; // 'open' or 'close'
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: { "sellerInfo.shopRequest": requestType } },
+      { new: true }
+    );
+    res.json({ success: true, message: `Request to ${requestType} shop sent to admin!` });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
+// Admin: get all pending shop requests
+exports.getShopRequests = async (req, res) => {
+  try {
+    const sellers = await User.find({ 
+      isSeller: true, 
+      "sellerInfo.approved": true,
+      "sellerInfo.shopRequest": { $ne: null }
+    }).select("-password");
+    res.json({ success: true, sellers });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
+// Admin: approve shop request
+exports.approveShopRequest = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    const newActive = user.sellerInfo.shopRequest === 'open';
+    user.sellerInfo.active = newActive;
+    user.sellerInfo.shopRequest = null;
+    user.markModified('sellerInfo');
+    await user.save();
+    res.json({ success: true, active: newActive, message: `Shop ${newActive ? 'opened' : 'closed'} successfully` });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
