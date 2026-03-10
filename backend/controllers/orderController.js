@@ -1,6 +1,6 @@
 const Order = require("../models/order");
 const User = require("../models/User");
-const { sendOrderStatusEmail } = require("../utils/emailService");
+const { sendOrderStatusEmail, sendEmail } = require("../utils/emailService");
 
 // ── Helpers ──────────────────────────────────────────────────────
 const getEstimatedDelivery = (fromDate = new Date()) => {

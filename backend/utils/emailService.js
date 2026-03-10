@@ -1,110 +1,28 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Create transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  family: 4, // true for 465
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
-
-// Check connection once
-transporter.verify(function (error, success) {
-  if (error) {
-    console.log("❌ SMTP Error:", error);
-  } else {
-    console.log("✅ Gmail SMTP Connected");
-  }
-});
-
-// Reusable send email function
 exports.sendEmail = async (to, subject, html) => {
-  try {
-    const info = await transporter.sendMail({
-      from: `"Cartify" <${process.env.GMAIL_USER}>`,
-      to,
-      subject,
-      html,
-    });
-
-    console.log("📧 Email sent:", info.messageId);
-  } catch (error) {
-    console.error("❌ Email send error:", error);
-    throw error;
-  }
+  const { error } = await resend.emails.send({
+    from: 'Cartify <onboarding@resend.dev>',
+    to,
+    subject,
+    html,
+  });
+  if (error) throw new Error(error.message);
 };
 
-// ── OTP Email (Register) ─────────────────────────
-exports.sendOTPEmail = async (toEmail, otp, userName = "") => {
-  const html = `
-    <h2>Hi ${userName},</h2>
-    <p>Your OTP is:</p>
-    <h1 style="font-size:32px;color:#f97316;">${otp}</h1>
-    <p>This OTP is valid for 10 minutes.</p>
-  `;
-
-  await sendEmail(toEmail, "Your OTP to Register on Cartify", html);
+exports.sendOTPEmail = async (toEmail, otp, userName = '') => {
+  await exports.sendEmail(toEmail, 'Your OTP - Cartify', '<h2>Hi ' + userName + ',</h2><p>Your OTP: <strong style="font-size:32px;color:#f97316;">' + otp + '</strong></p><p>Valid for 10 minutes.</p>');
 };
-
-// ── Password Reset Email ─────────────────────────
-exports.sendPasswordResetEmail = async (toEmail, otp, userName = "") => {
-  const html = `
-    <h2>Hi ${userName},</h2>
-    <p>Your password reset OTP:</p>
-    <h1 style="font-size:32px;color:#818cf8;">${otp}</h1>
-    <p>This OTP is valid for 10 minutes.</p>
-  `;
-
-  await sendEmail(toEmail, "Reset Your Cartify Password", html);
+exports.sendPasswordResetEmail = async (toEmail, otp, userName = '') => {
+  await exports.sendEmail(toEmail, 'Reset Password - Cartify', '<h2>Hi ' + userName + ',</h2><p>Reset OTP: <strong style="font-size:32px;color:#818cf8;">' + otp + '</strong></p><p>Valid for 10 minutes.</p>');
 };
-
-// ── Order Status Email ───────────────────────────
 exports.sendOrderStatusEmail = async (toEmail, userName, order, status) => {
-  const html = `
-    <h2>Hi ${userName},</h2>
-    <p>Your order status has been updated.</p>
-    <p>Status: <strong>${status}</strong></p>
-    <p>Order ID: ${order?._id || ""}</p>
-  `;
-
-  await sendEmail(toEmail, `Order Update - ${status}`, html);
+  await exports.sendEmail(toEmail, 'Order Update - ' + status, '<h2>Hi ' + userName + ',</h2><p>Order status: <strong>' + status + '</strong></p><p>Order ID: ' + (order?._id || '') + '</p>');
 };
-
-// ── Refund Email ─────────────────────────────────
-exports.sendRefundEmail = async (
-  toEmail,
-  userName,
-  order,
-  refundStatus,
-  refundAmount
-) => {
-  const html = `
-    <h2>Hi ${userName},</h2>
-    <p>Your refund status:</p>
-    <p>Status: <strong>${refundStatus}</strong></p>
-    <p>Refund Amount: ₹${refundAmount}</p>
-  `;
-
-  await sendEmail(toEmail, `Refund ${refundStatus}`, html);
+exports.sendRefundEmail = async (toEmail, userName, order, refundStatus, refundAmount) => {
+  await exports.sendEmail(toEmail, 'Refund ' + refundStatus, '<h2>Hi ' + userName + ',</h2><p>Refund status: <strong>' + refundStatus + '</strong></p><p>Amount: ₹' + refundAmount + '</p>');
 };
-
-// ── Exchange Email ───────────────────────────────
-exports.sendExchangeEmail = async (
-  toEmail,
-  userName,
-  order,
-  exchangeStatus,
-  newItems
-) => {
-  const html = `
-    <h2>Hi ${userName},</h2>
-    <p>Your exchange request update:</p>
-    <p>Status: <strong>${exchangeStatus}</strong></p>
-  `;
-
-  await sendEmail(toEmail, `Exchange ${exchangeStatus}`, html);
+exports.sendExchangeEmail = async (toEmail, userName, order, exchangeStatus, newItems) => {
+  await exports.sendEmail(toEmail, 'Exchange ' + exchangeStatus, '<h2>Hi ' + userName + ',</h2><p>Exchange status: <strong>' + exchangeStatus + '</strong></p>');
 };
