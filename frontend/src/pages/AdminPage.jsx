@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FiPackage, FiShoppingBag, FiDollarSign, FiEdit2, FiTrash2, FiPlus, FiCheck, FiX, FiAlertTriangle, FiClock, FiChevronDown, FiChevronUp, FiShoppingCart, FiRefreshCw } from 'react-icons/fi';
+import { FiPackage, FiShoppingBag, FiDollarSign, FiEdit2, FiTrash2, FiPlus, FiCheck, FiX, FiAlertTriangle, FiClock, FiChevronDown, FiChevronUp, FiShoppingCart, FiRefreshCw, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import API from '../utils/api';
 import toast from 'react-hot-toast';
 import ImageUploader from '../components/common/ImageUploader';
@@ -148,6 +148,7 @@ export default function AdminPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="mb-8">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white transition-colors text-sm mb-4"><FiArrowLeft className="w-4 h-4" /> Back to Home</Link>
           <h1 className="font-display text-4xl font-black text-white mb-1">Admin Panel</h1>
           <p className="text-white/30">Manage products, orders, sellers and approvals</p>
         </div>

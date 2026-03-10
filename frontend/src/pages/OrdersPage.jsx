@@ -187,10 +187,10 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-3xl mx-auto">
-        <h1 className="font-display text-3xl font-bold text-white mb-2">My Orders</h1>
-        <Link to="/" className="inline-flex items-center gap-1.5 text-white/40 hover:text-primary-400 transition-colors text-sm mb-6">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-white/40 hover:text-primary-400 transition-colors text-sm mb-4">
           ← Back to Home
         </Link>
+        <h1 className="font-display text-3xl font-bold text-white mb-6">My Orders</h1>
 
         <div className="space-y-4">
           {orders.map(order => {
