@@ -31,25 +31,42 @@ const emptyForm = { name: '', description: '', price: '', countInStock: '', imag
 function ToggleShopBtn({ sellerStatus, setSellerStatus, onRefresh }) {
   const [toggling, setToggling] = useState(false);
   const isOpen = sellerStatus.sellerInfo?.active !== false;
-  const handleToggle = async () => {
-    if (toggling) return;
+
+  const setShopStatus = async (newActive) => {
+    if (toggling || isOpen === newActive) return;
     setToggling(true);
     try {
       const { data } = await API.put('/seller/toggle-shop');
       toast.success(data.message);
       setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: data.active } }));
       onRefresh();
-    } catch(e) { toast.error('Failed to toggle shop'); }
+    } catch(e) { toast.error('Failed to update shop status'); }
     finally { setToggling(false); }
   };
+
   return (
-    <button onClick={handleToggle} disabled={toggling} className={`text-xs px-3 py-1 rounded-full border font-semibold transition-all disabled:opacity-50 ${
-      isOpen
-        ? 'bg-green-500/10 border-green-500/30 text-green-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
-        : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
-    }`}>
-      {toggling ? '...' : isOpen ? '🟢 Shop Open' : '🔴 Shop Closed'}
-    </button>
+    <div className="flex items-center gap-1 rounded-full border border-white/10 p-0.5 bg-white/5">
+      <button
+        onClick={() => setShopStatus(true)}
+        disabled={toggling}
+        className={`text-xs px-3 py-1 rounded-full font-semibold transition-all disabled:opacity-50 ${
+          isOpen
+            ? 'bg-green-500 text-white shadow'
+            : 'text-white/40 hover:text-white'
+        }`}>
+        🟢 Open
+      </button>
+      <button
+        onClick={() => setShopStatus(false)}
+        disabled={toggling}
+        className={`text-xs px-3 py-1 rounded-full font-semibold transition-all disabled:opacity-50 ${
+          !isOpen
+            ? 'bg-red-500 text-white shadow'
+            : 'text-white/40 hover:text-white'
+        }`}>
+        🔴 Closed
+      </button>
+    </div>
   );
 }
 
