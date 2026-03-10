@@ -127,9 +127,9 @@ exports.toggleShopStatus = async (req, res) => {
     }
     // Frontend sends desired state explicitly
     const newStatus = req.body.active;
-    const updated = await User.findByIdAndUpdate(req.user._id,
-      { "sellerInfo.active": newStatus }, { new: true }).select("-password");
-    res.json({ success: true, active: newStatus, message: newStatus ? "Shop is now Active" : "Shop is now Inactive", user: updated });
+    await User.findByIdAndUpdate(req.user._id,
+      { "sellerInfo.active": newStatus });
+    res.json({ success: true, active: newStatus, message: newStatus ? "Shop is now Active" : "Shop is now Inactive" });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
