@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
     phone: { type: String },
     countryCode: { type: String, default: '+91' },
     approved: { type: Boolean, default: false },
+    active: { type: Boolean, default: true },
+    shopRequest: { type: String, default: null }, // 'open' or 'close' - pending request
   },
 }, { timestamps: true });
 
