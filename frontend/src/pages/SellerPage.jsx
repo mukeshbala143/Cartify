@@ -36,7 +36,7 @@ function ToggleShopBtn({ sellerStatus, setSellerStatus, onRefresh }) {
     if (toggling || isOpen === newActive) return;
     setToggling(true);
     try {
-      const { data } = await API.put('/seller/toggle-shop');
+      const { data } = await API.put('/seller/toggle-shop', { active: newActive });
       toast.success(data.message);
       setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: data.active } }));
       onRefresh();
