@@ -230,7 +230,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="md:hidden pb-4 border-t border-white/5 pt-4 animate-fade-in">
+          <div className="md:hidden pb-4 border-t border-white/5 pt-4 animate-fade-in bg-dark-900/98 backdrop-blur-md">
             <div className="flex flex-col gap-1">
               <Link to="/products" className="px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors">All Products</Link>
               <Link to="/orders" className="px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors">📦 My Orders</Link>
