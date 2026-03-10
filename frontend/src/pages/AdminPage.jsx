@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [expandedSeller, setExpandedSeller] = useState(null);
   const [totalOrders, setTotalOrders] = useState(0);
   const [totalReturns, setTotalReturns] = useState(0);
+  const [shopRequests, setShopRequests] = useState([]);
 
   useEffect(() => {
     if (!user?.isAdmin) { navigate('/'); return; }
@@ -36,6 +37,7 @@ export default function AdminPage() {
     fetchApprovedSellers();
     fetchOrderCount();
     fetchReturnCount();
+    fetchShopRequests();
   }, [user]);
 
   const fetchProducts = async () => {
@@ -61,6 +63,12 @@ export default function AdminPage() {
       setApprovedSellers(data.sellers || []);
     } catch {}
     finally { setSellersLoading(false); }
+  };
+  const fetchShopRequests = async () => {
+    try {
+      const { data } = await API.get('/seller/shop-requests');
+      setShopRequests(data.sellers || []);
+    } catch {}
   };
 
   const fetchOrderCount = async () => {
@@ -168,6 +176,7 @@ export default function AdminPage() {
             { key: 'returns',     label: `Returns${totalReturns > 0 ? ` (${totalReturns})` : ''}`, icon: FiRefreshCw },
             { key: 'sellers',     label: `Approve Sellers${pendingSellers.length > 0 ? ` (${pendingSellers.length})` : ''}`, icon: FiClock },
             { key: 'sellershops', label: `Seller Shops (${approvedSellers.length})`, icon: FiStore },
+            { key: 'shopreqs', label: `Shop Requests${shopRequests.length > 0 ? ` (${shopRequests.length})` : ''}`, icon: FiClock },
           ].map(({ key, label, icon: Icon }) => (
             <button key={key}
               onClick={() => { setTab(key); if (key === 'products') { setEditId(null); setForm(emptyForm); } }}
@@ -312,6 +321,46 @@ export default function AdminPage() {
         )}
 
         {/* ── SELLER SHOPS ── */}
+        {tab === 'shopreqs' && (
+          <div className="space-y-3">
+            {shopRequests.length === 0 ? (
+              <div className="text-center py-12 text-white/30">No pending shop requests</div>
+            ) : shopRequests.map(s => (
+              <div key={s._id} className="card p-4 flex items-center gap-4 flex-wrap">
+                <div className="w-10 h-10 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                  <FiStore className="w-5 h-5 text-yellow-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-white">{s.sellerInfo?.shopName}</p>
+                  <p className="text-white/40 text-sm">{s.name} · {s.email}</p>
+                  <p className="text-xs mt-1">
+                    Current: <span className={s.sellerInfo?.active !== false ? 'text-green-400' : 'text-red-400'}>{s.sellerInfo?.active !== false ? '🟢 Open' : '🔴 Closed'}</span>
+                    {' → '}
+                    Requested: <span className={s.sellerInfo?.shopRequest === 'open' ? 'text-green-400' : 'text-red-400'}>{s.sellerInfo?.shopRequest === 'open' ? '🟢 Open' : '🔴 Closed'}</span>
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={async () => {
+                    await API.put('/seller/approve-shop-request/' + s._id);
+                    setShopRequests(prev => prev.filter(r => r._id !== s._id));
+                    setApprovedSellers(prev => prev.map(a => a._id === s._id ? { ...a, sellerInfo: { ...a.sellerInfo, active: s.sellerInfo?.shopRequest === 'open', shopRequest: null } } : a));
+                    toast.success('Request approved!');
+                  }} className="px-4 py-2 bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500 hover:text-white rounded-xl text-sm font-semibold transition-all">
+                    ✅ Approve
+                  </button>
+                  <button onClick={async () => {
+                    await API.put('/seller/admin-toggle/' + s._id, { active: s.sellerInfo?.active });
+                    setShopRequests(prev => prev.filter(r => r._id !== s._id));
+                    toast.success('Request rejected!');
+                  }} className="px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white rounded-xl text-sm font-semibold transition-all">
+                    ❌ Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {tab === 'sellershops' && (
           <div>
             {sellersLoading ? (

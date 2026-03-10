@@ -294,6 +294,22 @@ export default function SellerPage() {
               }`}>
                 {sellerStatus.sellerInfo?.active !== false ? '🟢 Shop Open' : '🔴 Shop Closed'}
               </span>
+              {sellerStatus.sellerInfo?.shopRequest ? (
+                <span className="text-xs px-3 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 font-semibold">
+                  ⏳ Request Pending: {sellerStatus.sellerInfo.shopRequest === 'open' ? 'Open' : 'Close'}
+                </span>
+              ) : (
+                <button onClick={async () => {
+                  const requestType = sellerStatus.sellerInfo?.active !== false ? 'close' : 'open';
+                  try {
+                    await API.put('/seller/request-shop', { requestType });
+                    toast.success('Request sent to admin!');
+                    setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, shopRequest: requestType } }));
+                  } catch(e) { toast.error('Failed to send request'); }
+                }} className="text-xs px-3 py-1 rounded-full border border-white/20 text-white/50 hover:text-white hover:border-white/40 font-semibold transition-all">
+                  {sellerStatus.sellerInfo?.active !== false ? '📩 Request Close' : '📩 Request Open'}
+                </button>
+              )}
             </div>
             <p className="text-white/30 text-sm">Seller: {user?.name} · {sellerStatus.sellerInfo?.countryCode} {sellerStatus.sellerInfo?.phone}</p>
           </div>
