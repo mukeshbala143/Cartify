@@ -22,7 +22,7 @@ transporter.verify(function (error, success) {
 });
 
 // Reusable send email function
-const sendEmail = async (to, subject, html) => {
+exports.sendEmail = async (to, subject, html) => {
   try {
     const info = await transporter.sendMail({
       from: `"Cartify" <${process.env.GMAIL_USER}>`,

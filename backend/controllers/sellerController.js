@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
+const { sendEmail } = require("../utils/emailService");
 
 // User requests to become seller
 exports.registerSeller = async (req, res) => {
