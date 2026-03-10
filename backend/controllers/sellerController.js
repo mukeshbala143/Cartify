@@ -125,7 +125,8 @@ exports.toggleShopStatus = async (req, res) => {
     if (!user.isSeller || !user.sellerInfo?.approved) {
       return res.status(403).json({ message: "Not an approved seller" });
     }
-    const newStatus = !user.sellerInfo.active;
+    const currentStatus = user.sellerInfo.active !== false; // undefined = true (default open)
+    const newStatus = !currentStatus;
     const updated = await User.findByIdAndUpdate(req.user._id,
       { "sellerInfo.active": newStatus }, { new: true }).select("-password");
     res.json({ success: true, active: newStatus, message: newStatus ? "Shop is now Active" : "Shop is now Inactive", user: updated });

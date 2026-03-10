@@ -28,7 +28,7 @@ const CATEGORIES = ['Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books'
 const emptyForm = { name: '', description: '', price: '', countInStock: '', images: [], category: 'Other' };
 
 
-function ToggleShopBtn({ sellerStatus, setSellerStatus }) {
+function ToggleShopBtn({ sellerStatus, setSellerStatus, onRefresh }) {
   const [toggling, setToggling] = useState(false);
   const isOpen = sellerStatus.sellerInfo?.active !== false;
   const handleToggle = async () => {
@@ -38,6 +38,7 @@ function ToggleShopBtn({ sellerStatus, setSellerStatus }) {
       const { data } = await API.put('/seller/toggle-shop');
       toast.success(data.message);
       setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: data.active } }));
+      onRefresh();
     } catch(e) { toast.error('Failed to toggle shop'); }
     finally { setToggling(false); }
   };
@@ -265,7 +266,7 @@ export default function SellerPage() {
               <FiStore className="w-5 h-5 text-primary-400" />
               <h1 className="font-display text-3xl font-black text-white">{sellerStatus.sellerInfo?.shopName}</h1>
               <span className="text-xs bg-green-500/15 border border-green-500/25 text-green-400 px-2 py-0.5 rounded-full font-semibold">✓ Approved</span>
-              <ToggleShopBtn sellerStatus={sellerStatus} setSellerStatus={setSellerStatus} />
+              <ToggleShopBtn sellerStatus={sellerStatus} setSellerStatus={setSellerStatus} onRefresh={fetchStatus} />
             </div>
             <p className="text-white/30 text-sm">Seller: {user?.name} · {sellerStatus.sellerInfo?.countryCode} {sellerStatus.sellerInfo?.phone}</p>
           </div>
