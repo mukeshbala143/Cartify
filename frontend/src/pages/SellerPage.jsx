@@ -28,19 +28,23 @@ const CATEGORIES = ['Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books'
 const emptyForm = { name: '', description: '', price: '', countInStock: '', images: [], category: 'Other' };
 
 
-function ToggleShopBtn({ sellerStatus, setSellerStatus, onRefresh }) {
+function ToggleShopBtn({ sellerStatus, setSellerStatus }) {
   const [toggling, setToggling] = useState(false);
   const isOpen = sellerStatus.sellerInfo?.active !== false;
 
   const setShopStatus = async (newActive) => {
     if (toggling || isOpen === newActive) return;
     setToggling(true);
+    // Optimistic update - turant UI change karo
+    setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: newActive } }));
     try {
-      const { data } = await API.put('/seller/toggle-shop', { active: newActive });
-      toast.success(data.message);
-      setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: data.active } }));
-      onRefresh();
-    } catch(e) { toast.error('Failed to update shop status'); }
+      await API.put('/seller/toggle-shop', { active: newActive });
+      toast.success(newActive ? 'Shop is now Active' : 'Shop is now Inactive');
+    } catch(e) {
+      // Revert on error
+      setSellerStatus(prev => ({ ...prev, sellerInfo: { ...prev.sellerInfo, active: !newActive } }));
+      toast.error('Failed to update shop status');
+    }
     finally { setToggling(false); }
   };
 
@@ -283,7 +287,7 @@ export default function SellerPage() {
               <FiStore className="w-5 h-5 text-primary-400" />
               <h1 className="font-display text-3xl font-black text-white">{sellerStatus.sellerInfo?.shopName}</h1>
               <span className="text-xs bg-green-500/15 border border-green-500/25 text-green-400 px-2 py-0.5 rounded-full font-semibold">✓ Approved</span>
-              <ToggleShopBtn sellerStatus={sellerStatus} setSellerStatus={setSellerStatus} onRefresh={fetchStatus} />
+              <ToggleShopBtn sellerStatus={sellerStatus} setSellerStatus={setSellerStatus} />
             </div>
             <p className="text-white/30 text-sm">Seller: {user?.name} · {sellerStatus.sellerInfo?.countryCode} {sellerStatus.sellerInfo?.phone}</p>
           </div>
