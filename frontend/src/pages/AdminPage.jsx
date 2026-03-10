@@ -334,6 +334,7 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-bold text-white text-lg">{seller.sellerInfo?.shopName}</p>
                           <span className="text-xs bg-green-500/10 border border-green-500/20 text-green-400 px-2 py-0.5 rounded-full">✓ Approved</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${seller.sellerInfo?.active !== false ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-red-500/10 border-red-500/20 text-red-400"}`}>{seller.sellerInfo?.active !== false ? "🟢 Open" : "🔴 Closed"}</span>
                         </div>
                         <p className="text-white/40 text-sm">{seller.name} · {seller.email}</p>
                         <p className="text-white/25 text-xs">📞 {seller.sellerInfo?.countryCode} {seller.sellerInfo?.phone} · {seller.products?.length || 0} products</p>
