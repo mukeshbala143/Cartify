@@ -182,16 +182,26 @@ export default function AdminOrders() {
 
             return (
               <div key={order._id} className="bg-dark-800/60 border border-white/8 rounded-2xl overflow-hidden">
-                <div className="flex items-center gap-4 p-4">
-                  <button onClick={() => setExpanded(isExpanded ? null : order._id)} className="flex-1 flex items-center gap-4 text-left min-w-0">
-                    <div className={`w-9 h-9 rounded-xl ${cfg.bg} border ${cfg.border} flex items-center justify-center flex-shrink-0`}>
+                <div className="p-4">
+                  {/* Top row - icon, id, status, amount, expand */}
+                  <div className="flex items-start gap-3">
+                    <div className={`w-9 h-9 rounded-xl ${cfg.bg} border ${cfg.border} flex items-center justify-center flex-shrink-0 mt-0.5`}>
                       <FiPackage className={`w-4 h-4 ${cfg.color}`} />
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-white font-semibold text-sm font-mono">
                           #{order._id.slice(-8).toUpperCase()}
                         </span>
+                        <div className="flex items-center gap-2">
+                          <p className="text-primary-400 font-bold text-sm">₹{order.totalAmount?.toLocaleString()}</p>
+                          <button onClick={() => setExpanded(isExpanded ? null : order._id)}
+                            className="p-1.5 text-white/30 hover:text-white transition-colors">
+                            {isExpanded ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap mt-1">
                         <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cfg.bg} ${cfg.border} ${cfg.color}`}>
                           {order.status}
                         </span>
@@ -208,35 +218,29 @@ export default function AdminOrders() {
                             Online · Paid
                           </span>
                         )}
+                        <span className="text-white/30 text-xs">{order.items?.length} items</span>
                       </div>
-                      <p className="text-white/35 text-xs mt-0.5 truncate">
-                        {order.user?.name} · {order.user?.email} · {formatDate(order.createdAt)}
+                      <p className="text-white/35 text-xs mt-1 truncate">
+                        {order.user?.name} · {formatDate(order.createdAt)}
                       </p>
                     </div>
-                  </button>
-
-                  <div className="text-right flex-shrink-0 mr-1">
-                    <p className="text-primary-400 font-bold">₹{order.totalAmount?.toLocaleString()}</p>
-                    <p className="text-white/30 text-xs">{order.items?.length} items</p>
                   </div>
-
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {nextStatuses.map(ns => (
-                      <button key={ns} onClick={() => {
-                        setUpdateForm({ status: ns, trackingNumber: order.trackingNumber || '', message: '' });
-                        setUpdateModal(order);
-                      }}
-                        className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-all ${
-                          ns === 'Cancelled' ? 'border-red-500/30 text-red-400 hover:bg-red-500/10' : 'border-primary-500/30 text-primary-400 hover:bg-primary-500/10'
-                        }`}>
-                        {ns === 'Shipped' ? '🚚' : ns === 'Delivered' ? '✅' : ns === 'Processing' ? '⚙️' : '❌'} {ns}
-                      </button>
-                    ))}
-                    <button onClick={() => setExpanded(isExpanded ? null : order._id)}
-                      className="p-1.5 text-white/30 hover:text-white transition-colors">
-                      {isExpanded ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
-                    </button>
-                  </div>
+                  {/* Action buttons - full width on mobile */}
+                  {nextStatuses.length > 0 && (
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      {nextStatuses.map(ns => (
+                        <button key={ns} onClick={() => {
+                          setUpdateForm({ status: ns, trackingNumber: order.trackingNumber || '', message: '' });
+                          setUpdateModal(order);
+                        }}
+                          className={`flex-1 text-xs px-3 py-2 rounded-lg border font-semibold transition-all ${
+                            ns === 'Cancelled' ? 'border-red-500/30 text-red-400 hover:bg-red-500/10' : 'border-primary-500/30 text-primary-400 hover:bg-primary-500/10'
+                          }`}>
+                          {ns === 'Shipped' ? '🚚' : ns === 'Delivered' ? '✅' : ns === 'Processing' ? '⚙️' : '❌'} {ns}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {isExpanded && (
