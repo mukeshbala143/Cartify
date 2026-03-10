@@ -287,7 +287,13 @@ export default function SellerPage() {
               <FiStore className="w-5 h-5 text-primary-400" />
               <h1 className="font-display text-3xl font-black text-white">{sellerStatus.sellerInfo?.shopName}</h1>
               <span className="text-xs bg-green-500/15 border border-green-500/25 text-green-400 px-2 py-0.5 rounded-full font-semibold">✓ Approved</span>
-              <ToggleShopBtn sellerStatus={sellerStatus} setSellerStatus={setSellerStatus} />
+              <span className={`text-xs px-3 py-1 rounded-full border font-semibold ${
+                sellerStatus.sellerInfo?.active !== false
+                  ? 'bg-green-500/10 border-green-500/30 text-green-400'
+                  : 'bg-red-500/10 border-red-500/30 text-red-400'
+              }`}>
+                {sellerStatus.sellerInfo?.active !== false ? '🟢 Shop Open' : '🔴 Shop Closed'}
+              </span>
             </div>
             <p className="text-white/30 text-sm">Seller: {user?.name} · {sellerStatus.sellerInfo?.countryCode} {sellerStatus.sellerInfo?.phone}</p>
           </div>
