@@ -96,7 +96,7 @@ export default function SellerPage() {
 
   const fetchStatus = async () => {
     try {
-      const { data } = await API.get('/seller/status');
+      const { data } = await API.get('/seller/status?t=' + Date.now());
       setSellerStatus(data);
       if (data.isSeller && data.sellerInfo?.approved) fetchProducts();
     } catch {}

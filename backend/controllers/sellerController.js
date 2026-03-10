@@ -144,6 +144,7 @@ exports.rejectSeller = async (req, res) => {
 
 // Get seller profile info
 exports.getSellerStatus = async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   try {
     const user = await User.findById(req.user._id).select("-password");
     res.json({ success: true, isSeller: user.isSeller, sellerInfo: user.sellerInfo });
