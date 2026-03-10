@@ -283,7 +283,7 @@ export default function AdminPage() {
             ) : (
               <div className="space-y-3">
                 {pendingSellers.map(s => (
-                  <div key={s._id} className="card p-5 flex items-center gap-4">
+                  <div key={s._id} className="card p-4 flex flex-wrap sm:flex-nowrap items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center flex-shrink-0">
                       <FiStore className="w-6 h-6 text-primary-400" />
                     </div>
@@ -296,7 +296,7 @@ export default function AdminPage() {
                       <p className="text-white/25 text-xs">📞 {s.sellerInfo?.countryCode} {s.sellerInfo?.phone}</p>
                       {s.sellerInfo?.shopDescription && <p className="text-white/25 text-xs mt-0.5 line-clamp-1">{s.sellerInfo.shopDescription}</p>}
                     </div>
-                    <div className="flex gap-2 flex-shrink-0">
+                    <div className="flex gap-2 flex-wrap mt-2 sm:mt-0">
                       <button onClick={() => approveSeller(s._id)} className="flex items-center gap-1.5 bg-green-500/10 hover:bg-green-500 border border-green-500/30 hover:border-green-500 text-green-400 hover:text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
                         <FiCheck className="w-4 h-4" /> Approve
                       </button>
