@@ -334,7 +334,10 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-bold text-white text-lg">{seller.sellerInfo?.shopName}</p>
                           <span className="text-xs bg-green-500/10 border border-green-500/20 text-green-400 px-2 py-0.5 rounded-full">✓ Approved</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${seller.sellerInfo?.active !== false ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-red-500/10 border-red-500/20 text-red-400"}`}>{seller.sellerInfo?.active !== false ? "🟢 Open" : "🔴 Closed"}</span>
+                          <div className="flex items-center gap-1 rounded-full border border-white/10 p-0.5 bg-white/5">
+                            <button onClick={async (e) => { e.stopPropagation(); await API.put('/seller/admin-toggle/' + seller._id, { active: true }); setApprovedSellers(prev => prev.map(s => s._id === seller._id ? { ...s, sellerInfo: { ...s.sellerInfo, active: true } } : s)); }} className={`text-xs px-2 py-0.5 rounded-full font-semibold transition-all ${seller.sellerInfo?.active !== false ? 'bg-green-500 text-white' : 'text-white/40 hover:text-white'}`}>🟢 Open</button>
+                            <button onClick={async (e) => { e.stopPropagation(); await API.put('/seller/admin-toggle/' + seller._id, { active: false }); setApprovedSellers(prev => prev.map(s => s._id === seller._id ? { ...s, sellerInfo: { ...s.sellerInfo, active: false } } : s)); }} className={`text-xs px-2 py-0.5 rounded-full font-semibold transition-all ${seller.sellerInfo?.active === false ? 'bg-red-500 text-white' : 'text-white/40 hover:text-white'}`}>🔴 Closed</button>
+                          </div>
                         </div>
                         <p className="text-white/40 text-sm">{seller.name} · {seller.email}</p>
                         <p className="text-white/25 text-xs">📞 {seller.sellerInfo?.countryCode} {seller.sellerInfo?.phone} · {seller.products?.length || 0} products</p>
