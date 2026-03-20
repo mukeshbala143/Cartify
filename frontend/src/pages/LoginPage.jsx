@@ -1,37 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiShoppingCart } from 'react-icons/fi';
+import { FiPhone, FiShoppingCart } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import toast from 'react-hot-toast';
+import API from '../utils/api';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function LoginPage() {
-  const { login, googleAuth } = useAuth();
+  const { googleAuth, login: authLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
-  const googleBtnRef = useRef(null);
   const hiddenGoogleRef = useRef(null);
+  const recaptchaRef = useRef(null);
 
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [showPass, setShowPass] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState('phone'); // phone | otp
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-
-  const handleGoogleResponse = async (response) => {
-    try {
-      setGoogleLoading(true);
-      await googleAuth(response.credential);
-      toast.success('Welcome! Signed in with Google 🎉');
-      navigate(from, { replace: true });
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Google sign-in failed');
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+  const [confirmation, setConfirmation] = useState(null);
+  const [timer, setTimer] = useState(0);
 
   useEffect(() => {
     const initGoogle = () => {
@@ -43,54 +36,83 @@ export default function LoginPage() {
       });
       if (hiddenGoogleRef.current) {
         window.google.accounts.id.renderButton(hiddenGoogleRef.current, {
-          type: 'standard',
-          theme: 'outline',
-          size: 'large',
-          width: 400,
+          type: 'standard', theme: 'outline', size: 'large', width: 400,
         });
       }
     };
-
     if (window.google) { initGoogle(); return; }
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
+    script.async = true; script.defer = true;
     script.onload = initGoogle;
     document.body.appendChild(script);
   }, []);
 
-  const handleGoogleClick = () => {
-    const innerBtn = hiddenGoogleRef.current?.querySelector('div[role=button]');
-    if (innerBtn) {
-      innerBtn.click();
-    } else {
-      toast.error('Google Sign-In loading... try again');
+  useEffect(() => {
+    if (timer > 0) {
+      const t = setTimeout(() => setTimer(timer - 1), 1000);
+      return () => clearTimeout(t);
     }
-  };
+  }, [timer]);
 
-  const validate = () => {
-    const errs = {};
-    if (!form.email) errs.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Invalid email';
-    if (!form.password) errs.password = 'Password is required';
-    return errs;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+  const handleGoogleResponse = async (response) => {
     try {
-      setLoading(true);
-      setErrors({});
-      await login(form.email, form.password);
-      toast.success('Welcome back! 👋');
+      setGoogleLoading(true);
+      await googleAuth(response.credential);
+      toast.success('Welcome! Signed in with Google 🎉');
       navigate(from, { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed';
-      toast.error(msg);
-      setErrors({ general: msg });
+      toast.error(err.response?.data?.message || 'Google sign-in failed');
+    } finally { setGoogleLoading(false); }
+  };
+
+  const handleGoogleClick = () => {
+    const innerBtn = hiddenGoogleRef.current?.querySelector('div[role=button]');
+    if (innerBtn) innerBtn.click();
+    else toast.error('Google Sign-In loading... try again');
+  };
+
+  const setupRecaptcha = () => {
+    if (!recaptchaRef.current) {
+      recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: () => {},
+      });
+    }
+    return recaptchaRef.current;
+  };
+
+  const sendOTP = async () => {
+    if (!phone || phone.length < 7) { toast.error('Valid phone number enter karo'); return; }
+    try {
+      setLoading(true);
+      const appVerifier = setupRecaptcha();
+      const fullPhone = `${countryCode}${phone}`;
+      const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
+      setConfirmation(result);
+      setStep('otp');
+      setTimer(30);
+      toast.success('OTP bheja gaya! 📱');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'OTP send failed');
+      recaptchaRef.current = null;
+    } finally { setLoading(false); }
+  };
+
+  const verifyOTP = async () => {
+    if (!otp || otp.length !== 6) { toast.error('6 digit OTP enter karo'); return; }
+    try {
+      setLoading(true);
+      const result = await confirmation.confirm(otp);
+      const firebaseToken = await result.user.getIdToken();
+      const fullPhone = `${countryCode}${phone}`;
+      const { data } = await API.post('/auth/phone-login', { firebaseToken, phone: fullPhone });
+      authLogin(data.token, data.user);
+      toast.success('Welcome! 🎉');
+      navigate(from, { replace: true });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid OTP');
     } finally { setLoading(false); }
   };
 
@@ -101,8 +123,8 @@ export default function LoginPage() {
         <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-orange-500/8 rounded-full blur-2xl"></div>
       </div>
 
-      {/* Hidden Google SDK button */}
       <div ref={hiddenGoogleRef} style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', zIndex: -1 }}></div>
+      <div id="recaptcha-container"></div>
 
       <div className="relative w-full max-w-md">
         <div className="bg-dark-800/80 backdrop-blur-xl border border-white/8 rounded-3xl p-8 md:p-10 shadow-2xl">
@@ -115,18 +137,9 @@ export default function LoginPage() {
             <p className="text-white/40">Sign in to your Cartify account</p>
           </div>
 
-          {errors.general && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 mb-6 text-red-400 text-sm">
-              {errors.general}
-            </div>
-          )}
-
-          {/* Custom styled Google button */}
-          <button
-            onClick={handleGoogleClick}
-            disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all mb-5 group disabled:opacity-60"
-          >
+          {/* Google Button */}
+          <button onClick={handleGoogleClick} disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all mb-5 group disabled:opacity-60">
             {googleLoading ? (
               <span className="w-5 h-5 border-2 border-white/20 border-t-white/70 rounded-full animate-spin"></span>
             ) : (
@@ -144,47 +157,55 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-3 mb-5">
             <div className="flex-1 h-px bg-white/8"></div>
-            <span className="text-white/25 text-xs font-medium">or sign in with email</span>
+            <span className="text-white/25 text-xs font-medium">or sign in with phone</span>
             <div className="flex-1 h-px bg-white/8"></div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="text-sm font-medium text-white/60 mb-1.5 block">Email Address</label>
-              <div className="relative">
-                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" />
-                <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                  placeholder="you@example.com" className={`input-field pl-11 ${errors.email ? 'border-red-500/50' : ''}`} />
+          {step === 'phone' ? (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-white/60 mb-1.5 block">Phone Number</label>
+                <div className="flex gap-2">
+                  <select value={countryCode} onChange={e => setCountryCode(e.target.value)}
+                    className="input-field w-24 text-sm px-2">
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+61">🇦🇺 +61</option>
+                    <option value="+971">🇦🇪 +971</option>
+                  </select>
+                  <div className="relative flex-1">
+                    <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" />
+                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
+                      placeholder="9876543210" className="input-field pl-11 w-full" maxLength={12} />
+                  </div>
+                </div>
               </div>
-              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+              <button onClick={sendOTP} disabled={loading}
+                className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
+                {loading ? <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Sending...</> : '📱 Send OTP'}
+              </button>
             </div>
-
-            <div>
-              <label className="text-sm font-medium text-white/60 mb-1.5 block">Password</label>
-              <div className="relative">
-                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" />
-                <input type={showPass ? 'text' : 'password'} value={form.password}
-                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                  placeholder="Your password" className={`input-field pl-11 pr-12 ${errors.password ? 'border-red-500/50' : ''}`} />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
-                  {showPass ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-                </button>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-white/60 mb-1.5 block">
+                  OTP sent to {countryCode}{phone}
+                  <button onClick={() => setStep('phone')} className="ml-2 text-primary-400 text-xs hover:underline">Change</button>
+                </label>
+                <input type="text" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="6 digit OTP" className="input-field w-full text-center text-2xl tracking-widest" maxLength={6} />
               </div>
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+              <button onClick={verifyOTP} disabled={loading}
+                className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
+                {loading ? <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Verifying...</> : '✅ Verify OTP'}
+              </button>
+              <button onClick={sendOTP} disabled={timer > 0 || loading}
+                className="w-full text-sm text-white/40 hover:text-white/70 transition-colors disabled:opacity-40">
+                {timer > 0 ? `Resend OTP in ${timer}s` : 'Resend OTP'}
+              </button>
             </div>
-
-            <div className="flex justify-end">
-              <Link to="/forgot-password" className="text-sm text-primary-400 hover:text-primary-300 transition-colors">
-                Forgot password?
-              </Link>
-            </div>
-
-            <button type="submit" disabled={loading}
-              className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
-              {loading ? <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Signing in...</> : 'Sign In'}
-            </button>
-          </form>
+          )}
 
           <p className="text-center text-white/40 text-sm mt-6">
             Don't have an account?{' '}

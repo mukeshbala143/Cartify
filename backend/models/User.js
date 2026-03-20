@@ -7,11 +7,13 @@ const userSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   isSeller: { type: Boolean, default: false },
   googleId: { type: String },
+  firebaseUid: { type: String },
+  phone: { type: String, unique: true, sparse: true },
   avatar: { type: String },
   sellerInfo: {
     shopName: { type: String },
     shopDescription: { type: String },
-    phone: { type: String },
+
     countryCode: { type: String, default: '+91' },
     approved: { type: Boolean, default: false },
     active: { type: Boolean, default: true },

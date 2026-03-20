@@ -34,4 +34,6 @@ router.get('/profile', protect, getProfile);
 // Google login
 router.post('/google', googleLogin);
 
+const { phoneLogin } = require('../controllers/phoneAuthController');
+router.post('/phone-login', phoneLogin);
 module.exports = router;
