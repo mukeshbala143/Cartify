@@ -10,7 +10,7 @@ import API from '../utils/api';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function LoginPage() {
-  const { googleAuth, login: authLogin } = useAuth();
+  const { googleAuth, phoneLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
@@ -108,7 +108,7 @@ export default function LoginPage() {
       const firebaseToken = await result.user.getIdToken();
       const fullPhone = `${countryCode}${phone}`;
       const { data } = await API.post('/auth/phone-login', { firebaseToken, phone: fullPhone });
-      authLogin(data.token, data.user);
+      phoneLogin(data.token, data.user);
       toast.success('Welcome! 🎉');
       navigate(from, { replace: true });
     } catch (err) {

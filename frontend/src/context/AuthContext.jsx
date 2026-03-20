@@ -47,10 +47,16 @@ export const AuthProvider = ({ children }) => {
     toast.success('Logged out successfully');
   };
 
+  const phoneLogin = (token, userData) => {
+    localStorage.setItem('cartify_token', token);
+    localStorage.setItem('cartify_user', JSON.stringify(userData));
+    setUser(userData);
+    return userData;
+  };
   const isAdmin = user?.isAdmin === true;
 
   return (
-    <AuthContext.Provider value={{ user, login, register, googleAuth, logout, loading, isAdmin }}>
+    <AuthContext.Provider value={{ user, login, register, googleAuth, phoneLogin, logout, loading, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );
